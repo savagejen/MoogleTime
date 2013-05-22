@@ -1,0 +1,26 @@
+{
+    "media": [
+        {
+            "defName": "IMAGE_MOG_DEAD",
+            "type": "png-trans",
+            "file": "images/mog_watchface3.png"
+        },
+        {
+            "defName": "IMAGE_MOG_HURT",
+            "type": "png-trans",
+            "file": "images/mog_watchface2.png"
+        },
+        {
+            "defName": "IMAGE_MOG_OK",
+            "type": "png-trans",
+            "file": "images/mog_watchface-1.png"
+        },
+        {
+            "defName": "FONT_FFVI_40",
+            "type": "font",
+            "file": "fonts/FFVI_40.ttf"
+        }
+    ],
+    "friendlyVersion": "VERSION",
+    "versionDefName": "APP_RESOURCES"
+}
