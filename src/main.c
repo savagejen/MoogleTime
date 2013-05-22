@@ -1,11 +1,11 @@
 /*
 
      <sprite>
-+------------+
++-----------------+
 |                 |
-|   HP   11/24    |
-|   MP   30/60    |
-+------------+
+|   HP   11/23    |
+|   MP   30/59    |
++-----------------+
 
 */
 #include "pebble_os.h"
@@ -24,17 +24,18 @@ PBL_APP_INFO(MY_UUID,
 Window window;
 TextLayer text_hours_layer;
 TextLayer text_minutes_layer;
+Layer background_layer;
 
 BmpContainer image_container;
 int current_background; //0=Awake, 1=Tired, 2=Asleep
 
-void set_background_image(BmpContainer *bmp_container, const int resource_id, Layer *targetLayer) {
+void set_background_image(BmpContainer *bmp_container, const int resource_id) {
   //Remove the old image
-  layer_remove_from_parent(&bmp_container->layer.layer);   
-  bmp_deinit_container(bmp_container);                           
+  layer_remove_from_parent(&bmp_container->layer.layer);
+  bmp_deinit_container(bmp_container);
   //Display the new image
-  bmp_init_container(resource_id, bmp_container);                   
-  layer_add_child(targetLayer, &bmp_container->layer.layer);    
+  bmp_init_container(resource_id, bmp_container);
+  layer_add_child(&background_layer, &bmp_container->layer.layer);
 }
 
 
@@ -64,23 +65,23 @@ void init_text() {
 
 void handle_init(AppContextRef ctx) {
   (void)ctx;
-
+ 
   window_init(&window, "Moogle");
   window_stack_push(&window, true /* Animated */);
   window_set_background_color(&window, GColorBlack);
-		
+ 
   resource_init_current_app(&APP_RESOURCES);
-
+ 
   //Adds Moogle sprite
-  bmp_init_container(RESOURCE_ID_IMAGE_MOG_OK_WHITE, &image_container);
-  layer_add_child(&window.layer, &image_container.layer.layer);
+  layer_init(&background_layer, window.layer.frame);
+  layer_add_child(&window.layer, &background_layer);
   current_background=0;
-	
+  set_background_image(&image_container,RESOURCE_ID_IMAGE_MOG_OK_WHITE);
+ 
   //Adds the time text
   init_text();
-
+ 
 }
-
 
 void handle_deinit(AppContextRef ctx) {
   (void)ctx;
@@ -110,35 +111,26 @@ void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *t) {
 
   if (t->tick_time->tm_hour>0&&t->tick_time->tm_hour<6&&current_background!=2){
 	//Moogle is asleep
-	//layer_remove_child_layers(&window.layer);
-	//init_text();
-	set_background_image(&image_container,RESOURCE_ID_IMAGE_MOG_DEAD_WHITE,&window.layer);
+	set_background_image(&image_container,RESOURCE_ID_IMAGE_MOG_DEAD_WHITE);
 	current_background=2;
 
   }
   if (t->tick_time->tm_hour>6&&t->tick_time->tm_hour<9&&current_background!=1){
-	//Moogle is groggy
-	//layer_remove_child_layers(&window.layer);
-	//init_text();	  
-	set_background_image(&image_container,RESOURCE_ID_IMAGE_MOG_HURT_WHITE,&window.layer);
+	//Moogle is groggy  
+	set_background_image(&image_container,RESOURCE_ID_IMAGE_MOG_HURT_WHITE);
 	current_background=1;
 	
   }
   if (t->tick_time->tm_hour>9&&t->tick_time->tm_hour<21&&current_background!=0){
 	//Moogle is awake
-	//layer_remove_child_layers(&window.layer);
-	//init_text();	  
-	set_background_image(&image_container,RESOURCE_ID_IMAGE_MOG_OK_WHITE,&window.layer);
+	set_background_image(&image_container,RESOURCE_ID_IMAGE_MOG_OK_WHITE);
 	current_background=0;
 
   }
   if (t->tick_time->tm_hour>21&&t->tick_time->tm_hour<24&&current_background!=1){
 	//Moogle is tired
-	//layer_remove_child_layers(&window.layer);
-	//init_text();	  
-	set_background_image(&image_container,RESOURCE_ID_IMAGE_MOG_HURT_WHITE,&window.layer);
+	set_background_image(&image_container,RESOURCE_ID_IMAGE_MOG_HURT_WHITE);
 	current_background=1;
-
   }
 	
   text_layer_set_text(&text_hours_layer, hours_text);
@@ -154,7 +146,6 @@ void pbl_main(void *params) {
       .tick_handler = &handle_minute_tick,
       .tick_units = MINUTE_UNIT
     }
-
   };
   app_event_loop(params, &handlers);
 }
